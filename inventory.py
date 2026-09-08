@@ -1,7 +1,4 @@
-import os
-import sys
 import json
-from collections import OrderedDict
 from datetime import datetime
 
 
@@ -10,6 +7,7 @@ class InventoryItem:
         self.name = name
         self.quantity = quantity
         self.price = price
+
     def total_value(self):
         return self.quantity * self.price
 
@@ -21,7 +19,7 @@ class Inventory:
 
     def add_item(self, name, quantity, price):
         existing = self.items.get(name)
-        if existing == None:
+        if existing is None:
             self.items[name] = InventoryItem(name, quantity, price)
         else:
             self.items[name].quantity += quantity
@@ -34,12 +32,12 @@ class Inventory:
             item.quantity -= quantity
             if item.quantity <= 0:
                 del self.items[name]
-        except:
-            print("could not remove item, it may not exist in the inventory at all")
+        except KeyError:
+            print("could not remove item, it may not exist in the "
+                  "inventory at all")
 
     def total_inventory_value(self):
         total = 0
-        count = 0
         for name, item in self.items.items():
             total += item.total_value()
         return total
@@ -54,7 +52,8 @@ class Inventory:
     def summary(self):
         result = "Inventory Summary:\n"
         for name, item in self.items.items():
-            result += f"  {name}: qty={item.quantity} price={item.price} total={item.total_value()}\n"
+            result += (f"  {name}: qty={item.quantity} price={item.price} "
+                       f"total={item.total_value()}\n")
         return result
 
 
@@ -68,7 +67,8 @@ def load_inventory_from_file(path):
 
 
 def save_inventory_to_file(inv, path):
-    data = [{"name": i.name, "quantity": i.quantity, "price": i.price} for i in inv.items.values()]
+    data = [{"name": i.name, "quantity": i.quantity, "price": i.price}
+            for i in inv.items.values()]
     with open(path, "w") as f:
         json.dump(data, f)
 
